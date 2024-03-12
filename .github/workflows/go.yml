@@ -1,61 +1,54 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "master" branch
   push:
-    branches: [ "master" ]
+    branches: 
+      - master
   pull_request:
-    branches: [ "master" ]
-
-  # Allows you to run this workflow manually from the Actions tab
+    branches: 
+      - master
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      # Runs a single command using the runners shell
       - name: Setup Go environment
-      - uses: actions/setup-go@v5.0.0 
-          with:
-              # The Go version to download (if necessary) and use. Supports semver spec and ranges. Be sure to enclose this option in single quotation marks.
-              go-version: # optional
-              # Path to the go.mod or go.work file.
-              go-version-file: # optional
-              # Set this option to true if you want the action to always check for the latest available version that satisfies the version spec
-              check-latest: # optional
-              # Used to pull Go distributions from go-versions. Since there's a default, this is typically not supplied by the user. When running this action on github.com, the default value is sufficient. When running on GHES, you can pass a personal access token for github.com if you are experiencing rate limiting.
-              token: # optional, default is ${{ github.server_url == 'https://github.com' && github.token || '' }}
-              # Used to specify whether caching is needed. Set to true, if you'd like to enable caching.
-              cache: # optional, default is true
-              # Used to specify the path to a dependency file - go.sum
-              cache-dependency-path: # optional
-              # Target architecture for Go to use. Examples: x86, x64. Will use system architecture by default.
-              architecture: # optional
+        uses: actions/setup-go@v5.0.0 
+        with:
+          go-version: '1.17'
           
-        run: echo "Downloading sedge sources..."
-             git clone https://github.com/NethermindEth/sedge.git src --branch main --single-branch
-             echo "Sources downloaded."
-             cd src
-             echo "Building sedge..."
-             make compile
-             echo 'Running sedge...'
-             ./sedge deps install >> $HOME/sedge.logs
-             ./sedge generate --logging none -p $HOME /
-             full-node --map-all --no-mev-boost --no-validator --network chiado /
-             -c lighthouse:sigp/lighthouse:latest -e nethermind:nethermindeth/nethermind:master /
-             --el-extra-flag Sync.NonValidatorNode=true --el-extra-flag Sync.DownloadBodiesInFastSync=false /
-             --el-extra-flag Sync.DownloadReceiptsInFastSync=false /
-             --cl-extra-flag checkpoint-sync-url=http://139.144.26.89:4000/ >> $HOME/sedge.logs
-             ./sedge run -p . >> $HOME/sedge.logs
+      - name: Download sedge sources
+        run: |
+          git clone https://github.com/NethermindEth/sedge.git src --branch main --single-branch
+          echo "Sources downloaded."
+
+      - name: Build sedge
+        run: |
+          cd src
+          make compile
+          echo "Building sedge..."
+
+      - name: Install sedge dependencies
+        run: |
+          cd src
+          ./sedge deps install
+
+      - name: Generate sedge
+        run: |
+          cd src
+          ./sedge generate --logging none -p $HOME /
+          full-node --map-all --no-mev-boost --no-validator --network chiado /
+          -c lighthouse:sigp/lighthouse:latest -e nethermind:nethermindeth/nethermind:master /
+          --el-extra-flag Sync.NonValidatorNode=true --el-extra-flag Sync.DownloadBodiesInFastSync=false /
+          --el-extra-flag Sync.DownloadReceiptsInFastSync=false /
+          --cl-extra-flag checkpoint-sync-url=http://139.144.26.89:4000/
+
+      - name: Run sedge
+        run: |
+          cd src
+          ./sedge run -p .
