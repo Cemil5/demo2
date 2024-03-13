@@ -39,7 +39,7 @@ jobs:
           echo "directory list:"
           ls
           echo "installing sedge dependencies..."
-          sedge deps install
+          ./sedge deps install
 
       - name: Run sedge
         run: |
