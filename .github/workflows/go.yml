@@ -35,7 +35,6 @@ jobs:
 
       - name: Install sedge dependencies
         run: |
-          cd src
           echo "installing sedge dependencies..."
           ./sedge deps install
 
