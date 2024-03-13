@@ -1,4 +1,4 @@
-name: CI
+name: sedge
 
 on:
   push:
@@ -30,8 +30,8 @@ jobs:
       - name: Build sedge
         run: |
           cd src
-          make compile
-          echo "Building sedge..."
+          mkdir -p build
+          go build -o build/sedge cmd/sedge/main.go
 
       - name: Install sedge dependencies
         run: |
