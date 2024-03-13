@@ -35,11 +35,10 @@ jobs:
 
       - name: Install sedge dependencies
         run: |
-          ls
           cd src
           ls
           echo "installing sedge dependencies..."
-          ./build deps install
+          ./sedge deps install >> $HOME/sedge.logs
 
       - name: Run sedge
         run: |
