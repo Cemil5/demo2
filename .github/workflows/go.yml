@@ -30,17 +30,19 @@ jobs:
       - name: Build sedge
         run: |
           cd src
-          mkdir -p build
-          go build -o build/sedge cmd/sedge/main.go
+          echo "building sedge..."
+          make compile
 
       - name: Install sedge dependencies
         run: |
           cd src
+          echo "installing sedge dependencies..."
           ./sedge deps install
 
-      - name: Generate sedge
+      - name: Run sedge
         run: |
           cd src
+          echo "running sedge..."
           ./sedge generate --logging none -p $HOME /
           full-node --map-all --no-mev-boost --no-validator --network chiado /
           -c lighthouse:sigp/lighthouse:latest -e nethermind:nethermindeth/nethermind:master /
